@@ -138,4 +138,4 @@ QUIT;   /*매크로 macro_tbl의 명령어를 입력합니다*/
 PROC PRINT DATA=macro_tbl;RUN;
 %MEND;  /*매크로 macro_tbl 생성을 종료합니다*/
 
-%macro_tbl(13,'여'); /*매크로TEST3를 시행합니다*/
+%macro_tbl(13,'여'); /*매크로 macro_tbl를 시행합니다*/
