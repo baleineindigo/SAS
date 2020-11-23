@@ -1,0 +1,141 @@
+
+/* LIBRARY 생성 */
+LIBNAME dataset "C:/바탕 화면/playdata/ice/py_work/SAS/data";
+
+/* 데이터 셋 생성 */
+DATA dataset.fin;
+	INFILE "C:/바탕 화면/playdata/ice/py_work/SAS/data/finance.csv";
+	INPUT 
+    gender $
+    age
+    Investment_Avenues $
+    Mutual_Funds
+    Equity_Market
+    Debentures
+    Government_Bonds
+    Fixed_Deposits
+    PPF
+    Gold
+    Stock_Marktet $
+    Factor $
+    Objective $
+    Purpose $
+    Duration $
+    Invest_Monitor $
+    Expect $
+    Avenue $
+    What_are_your_savings_objectives? $
+    Reason_Equity $
+    Reason_Mutual $
+    Reason_Bonds $
+    Reason_FD $
+    Source $
+  ;
+RUN;
+
+
+
+/* 매크로 예시*/
+%LET NAME=존; /*%는 로그창에만 출력하는 것*/
+%PUT &=NAME;  /*매크로 컬럼과 결과값을 동시에 출력하게 된다.*/
+%PUT &NAME.;  /* 결과값만 출력하는 것*/
+
+/*
+① 매크로를 생성할 때는 %LET 명령어를 통해 만듭니다. 반드시 ‘%’를 붙여야 SAS는 이를 매크로 칼럼 생성으로 인식합니다. 
+‘%’는 표로 이뤄진 결과값을 출력하는 게 아니라 SAS에 명령어를 인식시키거나 로그기록에만 출력을 할 때 사용하는 명령어입니다. 
+‘%’가 들어가는 명령어는 표로 이뤄진 결과값을 출력하지 않는다는 점을 기억하면 됩니다. %LET을 통해 매크로를 생성할 수 있습니다. 
+%LET NAME=존의 경우 매크로 변수 NAME을 입력할 경우 ‘존’이라는 데이터를 출력하라는 의미입니다.
+
+② '&'명령어를 통해 %LET명령어로 생성된 매크로 변수값을 불러올 수 있습니다. 
+이를 매크로 트리거(방아쇠라는 의미)라고 합니다. 모든 매크로는 ‘&’을 통해 불러옵니다. 
+따라서 &NAME. 을 입력할 경우 SAS는 이를 매크로 칼럼 NAME을 불러오라는 명령어로 인식합니다. 그래서 ‘존’이라는 값이 출력됩니다.
+
+③ %PUT명령어의 경우 표로 이뤄진 결과값을 출력하는 게 아니라 로그 기록에 결과값을 출력하는 명령어입니다. %PUT명령어를 통해 매크로 칼럼과 결과값을 로그창에서 확인할 수 있습니다. 
+%PUT &=NAME.은 매크로 칼럼 NAME의 결과값을 출력하라는 명령어입니다. 그리고 %PUT &NAME.은 매크로 칼럼 NAME의 결과값만을 출력하게 됩니다. 
+&=NAME.은 매크로 칼럼과 결과값을 동시에 출력하고 &NAME.은 결과값만을 출력하게 됩니다.
+*/
+
+/* 매크로 SQL */
+%LET gen_f="Female";
+
+PROC SQL;
+  SELECT gender,age,Invesr_Monitor, Reason_Equity
+  FROM dataset.fin;
+  WHERE gender=&gen_f.
+  ;
+QUIT;
+
+
+/* 매크로 CALL SYMPUT : 자동 입력*/
+/* fin에서 id열이 추가된 fin_id 데이터 셋 만들기 */
+DATA dataset.fin_id;
+  SET dataset.fin;
+  /* gender,age컬럼 합쳐서 ID열 만들기 */
+  ID=CATS(gender,age);
+RUN;
+
+/* fin에서 id열이 추가된 fin_id 데이터 셋 만들기 */
+DATA _NULL_;
+  SET dataset.fin_id;
+  CALL SYMPUT(ID,age);
+RUN;
+
+%PUT &=Male29;
+/* 결과 : Male29=29*/
+%PUT &Female25;
+/* 결과 : 25*/
+
+
+/*매크로 연동 입력 명령어(PROC SQL의 INTO)*/
+/*INTO명령어는 SQL프로시저에서 사용하는 명령어입니다. 주로 SQL로 연산을 시행하면서 나오는 수치를 매크로화 시킬 때 사용하는 명령어입니다. 
+위의 예제에서는 칼럼NAME의 전체 변수의 개수를 구하고 이를 매크로변수 CNT의 값으로 설정하게 됩니다. 
+COUNT명령어뿐만 아니라 SUM, MEAN 등 다양한 연산명령어를 활용하여 매크로변수를 생성할 수 있습니다.*/
+
+
+PROC SQL;
+   TITLE "MACRO INTO age_CNT";
+   SELECT
+   	COUNT(age) INTO :age_CNT
+   FROM dataset.fin_num
+   WHERE Stock_Market="Yes";
+QUIT;
+%PUT &=age_CNT;
+
+
+PROC SQL;
+   TITLE "MACRO INTO Mutual_Funds_AVG_by_gender";
+   SELECT
+   	gender,
+   	AVG(Mutual_Funds) INTO : Mutual_Funds_AVG
+   FROM dataset.fin_num
+   GROUP BY gender;
+QUIT;
+%PUT &=Mutual_Funds_AVG;
+
+
+/* MACRO 활용한 문장의 매크로화(%MACRO) */
+
+%MACRO macro_tbl(age_cut,stock_cut); /*매크로TEST3를 생성합니다. 그리고 CUT과 CUT2라는 매크로변수도 함께 생성합니다*/
+PROC SQL;
+    TITLE "MACRO 활용한 문장의 매크로화(%MACRO) macro_tbl"
+    CREATE TABLE macro_tbl AS
+	SELECT
+	gender,
+	age,
+	Mutual_Funds,
+	Equity_Market
+	Debentures,
+	Government_Bonds,
+	Fixed_Deposits,
+	PPF,
+	Gold
+	FROM dataset.fin_num
+	WHERE age=&age_cut. /*AGE의 값이 &age_cut.과 동일한 행을 추출합니다*/
+	AND Stock_Market=&stock_cut./*Stock_Market의 값이 &stock_cut.과 동일한 행만 추출합니다*/
+	ORDER BY age ASC
+    	;
+QUIT;   /*매크로 macro_tbl의 명령어를 입력합니다*/
+PROC PRINT DATA=macro_tbl;RUN;
+%MEND;  /*매크로 macro_tbl 생성을 종료합니다*/
+
+%macro_tbl(13,'여'); /*매크로TEST3를 시행합니다*/

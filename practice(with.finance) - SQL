@@ -1,0 +1,95 @@
+/* LIBRARY 생성 */
+LIBNAME dataset "C:/바탕 화면/playdata/ice/py_work/SAS/data";
+
+/* 데이터 셋 생성 */
+DATA dataset.fin;
+	INFILE "C:/바탕 화면/playdata/ice/py_work/SAS/data/finance.csv";
+	INPUT 
+    gender $
+    age
+    Investment_Avenues $
+    Mutual_Funds
+    Equity_Market
+    Debentures
+    Government_Bonds
+    Fixed_Deposits
+    PPF
+    Gold
+    Stock_Marktet $
+    Factor $
+    Objective $
+    Purpose $
+    Duration $
+    Invest_Monitor $
+    Expect $
+    Avenue $
+    What_are_your_savings_objectives? $
+    Reason_Equity $
+    Reason_Mutual $
+    Reason_Bonds $
+    Reason_FD $
+    Source $
+  ;
+RUN;
+
+
+/* SQL STATEMENT 1 : STOCK이 있는사람만 불러오기 */
+CREATE TABLE preference_by_gender AS
+	SELECT gender, age,
+			round(avg(Mutual_Funds),2) as Mutual_Funds, 
+			round(avg(Equity_Market),2) as Equity_Market, 
+			round(avg(Debentures),2) as Debentures,
+      round(avg(Government_Bonds),2) as Government_Bonds,
+      round(avg(Fixed_Deposits),2) as Fixed_Deposits,
+      round(avg(PPF),2) as PPF,
+      round(avg(Gold),2) as Gold,
+	FROM dataset.fin
+	WHERE Stock_Marktet="Yes"
+	ORDER BY age ASC
+;
+QUIT;
+
+
+/* SQL STATEMENT 2 : 성별로 금융 상품 선호도 Table */
+CREATE TABLE preference_by_gender AS
+	SELECT gender, 
+			round(avg(Mutual_Funds),2) as Mutual_Funds, 
+			round(avg(Equity_Market),2) as Equity_Market, 
+			round(avg(Debentures),2) as Debentures,
+      round(avg(Government_Bonds),2) as Government_Bonds,
+      round(avg(Fixed_Deposits),2) as Fixed_Deposits,
+      round(avg(PPF),2) as PPF,
+      round(avg(Gold),2) as Gold,
+	FROM dataset.fin
+	GROUP BY gender
+	ORDER BY gender ASC
+;
+QUIT;
+PROC PRINT DATA=preference_by_gender;RUN;
+
+
+
+/* SQL STATEMENT 3 : 연령대 구간별 금융 상품 선호도 Table */
+CREATE TABLE preference_by_age AS
+	SELECT gender,
+      CASE
+        WHEN age>=40 THEN "40s"
+        WHEN age<40 AND age>=35 THEN "35-39"
+        WHEN age<35 AND age>=30 THEN "30-34"
+        WHEN age<30 AND age>=25 THEN "25-29"
+        WHEN age<25 AND age>=20 THEN "20-24"
+        ELSE THEN "Teenager"
+      END AS NEW_AGE,
+			round(avg(Mutual_Funds),2) as Mutual_Funds, 
+			round(avg(Equity_Market),2) as Equity_Market, 
+			round(avg(Debentures),2) as Debentures,
+      round(avg(Government_Bonds),2) as Government_Bonds,
+      round(avg(Fixed_Deposits),2) as Fixed_Deposits,
+      round(avg(PPF),2) as PPF,
+      round(avg(Gold),2) as Gold,
+	FROM dataset.fin
+	GROUP BY NEW_AGE
+	ORDER BY gender ASC
+;
+QUIT;
+PROC PRINT DATA=preference_by_age;RUN;

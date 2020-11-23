@@ -1,0 +1,51 @@
+/* LIBRARY 생성 */
+LIBNAME dataset "C:/바탕 화면/playdata/ice/py_work/SAS/data";
+
+/* 데이터 셋 생성 */
+DATA dataset.fin;
+	INFILE "C:/바탕 화면/playdata/ice/py_work/SAS/data/finance.csv";
+	INPUT 
+    gender $
+    age
+    Investment_Avenues $
+    Mutual_Funds
+    Equity_Market
+    Debentures
+    Government_Bonds
+    Fixed_Deposits
+    PPF
+    Gold
+    Stock_Marktet $
+    Factor $
+    Objective $
+    Purpose $
+    Duration $
+    Invest_Monitor $
+    Expect $
+    Avenue $
+    What_are_your_savings_objectives? $
+    Reason_Equity $
+    Reason_Mutual $
+    Reason_Bonds $
+    Reason_FD $
+    Source $
+  ;
+RUN;
+
+
+/* 데이터 PRINT */
+PROC PRINT DATA=fin;RUN;
+
+
+/* 데이터 CONTENTS */
+PROC CONTENTS DATA=fin;RUN;
+
+
+/* 전체 데이터 FREQ */
+PROC FREQ DATA=fin;
+RUN;
+
+/* 2개 변수 교차분석 FREQ */
+PROC FREQ DATA=fin;
+  TABLE gender*age;
+RUN;
