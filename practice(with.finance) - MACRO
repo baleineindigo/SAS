@@ -112,30 +112,32 @@ PROC SQL;
 QUIT;
 %PUT &=Mutual_Funds_AVG;
 
-
 /* MACRO 활용한 문장의 매크로화(%MACRO) */
 
-%MACRO macro_tbl(age_cut,stock_cut); /*매크로TEST3를 생성합니다. 그리고 CUT과 CUT2라는 매크로변수도 함께 생성합니다*/
+/*매크로 macro_tbl와 age_cut와 stock_cut 매크로변수도 함께 생성*/
+%MACRO macro_tbl(age_cut,stock_cut); 
 PROC SQL;
-    TITLE "MACRO 활용한 문장의 매크로화(%MACRO) macro_tbl"
-    CREATE TABLE macro_tbl AS
-	SELECT
-	gender,
-	age,
-	Mutual_Funds,
-	Equity_Market
-	Debentures,
-	Government_Bonds,
-	Fixed_Deposits,
-	PPF,
-	Gold
-	FROM dataset.fin_num
-	WHERE age=&age_cut. /*AGE의 값이 &age_cut.과 동일한 행을 추출합니다*/
-	AND Stock_Market=&stock_cut./*Stock_Market의 값이 &stock_cut.과 동일한 행만 추출합니다*/
-	ORDER BY age ASC
-    	;
-QUIT;   /*매크로 macro_tbl의 명령어를 입력합니다*/
-PROC PRINT DATA=macro_tbl;RUN;
+TITLE "MACRO 활용한 문장의 매크로화(%MACRO) macro_tbl"
+  CREATE TABLE macro_tbl AS
+    SELECT
+    gender,
+    age,
+    Mutual_Funds,
+    Equity_Market
+    Debentures,
+    Government_Bonds,
+    Fixed_Deposits,
+    PPF,
+    Gold
+    FROM dataset.fin_num
+    WHERE age=&age_cut. /*AGE의 값이 &age_cut.과 동일한 행을 추출합니다*/
+    AND Stock_Market=&stock_cut./*Stock_Market의 값이 &stock_cut.과 동일한 행만 추출합니다*/
+    ORDER BY age ASC
+    ;
+  QUIT;   /*매크로 macro_tbl의 명령어를 입력합니다*/
+  
+PROC PRINT DATA=macro_tbl;RUN;  /*출력*/
 %MEND;  /*매크로 macro_tbl 생성을 종료합니다*/
 
-%macro_tbl(13,'여'); /*매크로 macro_tbl를 시행합니다*/
+%macro_tbl(20,'Yes'); /*매크로 macro_tbl를 시행합니다*/
+
