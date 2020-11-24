@@ -141,3 +141,21 @@ PROC PRINT DATA=macro_tbl;RUN;  /*출력*/
 
 %macro_tbl(20,'Yes'); /*매크로 macro_tbl를 시행합니다*/
 
+
+
+/* DO로 매크로 자동화*/
+%MACRO macro_do(CUT_STRT);  /*매크로 macro_do를 생성하고 매크로변수 CUT_STRT를 생성합니다.*/
+  %DO I=&CUT_STRT. %TO 25;    /*매크로용 DO명령어 통해 매크로변수I를 생성합니다. I는 &CUT_STRT.부터 25까지 시행합니다*/  
+    PROC SQL;
+      CREATE TABLE TEST_&I. AS    /*매크로변수I의 순서대로 테이블TEST_13, TEST_14, TEST_15를 생성합니다*/
+      SELECT *
+      FROM dataset.fin_num
+      WHERE age=&I.   /*칼럼AGE의 값이 &I.인 행만을 추출합니다*/
+      ;
+    QUIT;
+  PROC PRINT DATA=macro_do&I.;RUN;  /* 매크로 테이블 프린트 */
+  %END;   /*매크로용 DO명령어의 끝을 알려줍니다. 다음번 &I.를 시행합니다. 만약 다음번 &I.가 없을 경우 반복을 중단합니다*/
+%MEND;  /*매크로 macro_do 생성을 종료합니다*/
+
+
+%TEST(20);  /*매크로 macro_do를 시행합니다. CUT_STRT의 값은 20으로 설정합니다*/
