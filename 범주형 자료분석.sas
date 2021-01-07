@@ -2,7 +2,7 @@
 PROC CONTENTS DATA=SASHELP.HEART;
 RUN;
 
-PROC PRINT DATA=SASHELP.HEART;
+PROC PRINT DATA=SASHELP.HEART(obs=20);
 RUN;
 
 /* 1. 도수분포표 및 분할표
@@ -14,13 +14,13 @@ RUN;
 
 /* 두 요인의 교차분포 */
 PROC FREQ DATA=SASHELP.HEART;
-	TABLES Smoking_Status*Status;
+	TABLES Status*Smoking_Status;
 	TABLES Status *Sex;
 RUN;
 
 /* 3개 요인 : 흡연여부와 사망여부 & 몸무게와 사망여부,*/
 PROC FREQ DATA=SASHELP.HEART;
-	TABLES (Smoking_Status Weight_Status)*Status;
+	TABLES Status*(Smoking_Status Weight_Status);
 RUN;
 
 /* ================================================================================================ */
@@ -47,4 +47,15 @@ RUN;
 
 PROC FREQ DATA=HEART_SMOKE;
 	TABLES Smoking_YN*SEX/CHISQ;
+RUN;
+
+
+/* ================================================================================================ */
+/* 4. 동질성 검정
+어떤 특성에 대한 자료의 분포가 동일한지 검정하는 방법으로 독립 검정과 유사하나 
+자료를 얻는 방법에서 차이가 있습니다. 동질성검정은 전체 자료를 검정하려는 특성에 따라 먼저 분류한 후
+각 범주별로 정해진 수만큼의 자룔를 조사하여 각 범주별로 비율이 다른지 검정
+*/
+PROC FREQ DATA=HEART_SMOKE;
+	TABLES SEX*Smoking_YN/CHISQ NOPERCENT MEASURES;
 RUN;
